@@ -179,7 +179,8 @@ let sparks = [];             // ascii sparkle particles
 let ripples = [];            // spawn rings
 let mascotChars = [];        // {el, at}
 let mascotBuilt = false;
-const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  && !location.search.includes('motion=full'); // test hook: headless Chrome forces reduce
 
 /* mascot overlay build */
 function buildMascot(){
@@ -201,6 +202,15 @@ function buildMascot(){
 }
 
 function reset(){
+  if(reduced){ // frame loop never runs here — restore the settled final frame directly
+    document.body.classList.add('dark');
+    mascotChars.forEach(m=>{m.el.classList.add('on'); if(m.hot) m.el.classList.add('hot');});
+    document.getElementById('mascotWrap').classList.add('show');
+    document.getElementById('wordmark').classList.add('show');
+    document.getElementById('replay').classList.add('show');
+    document.getElementById('status').textContent = '1/1 · superbot online';
+    return;
+  }
   t0 = performance.now();
   theta = 0; lastT = 0;
   flashFired = false; burstDone = false;
@@ -483,7 +493,7 @@ function maxBlurRadius(){ return Math.max(W,H)*0.75; }
 if(reduced){
   document.body.classList.add('dark');
   buildMascot();
-  mascotChars.forEach(m=>{m.at = 0;});
+  mascotChars.forEach(m=>{m.el.classList.add('on'); if(m.hot) m.el.classList.add('hot');});
   document.getElementById('mascotWrap').classList.add('show');
   document.getElementById('wordmark').classList.add('show');
   document.getElementById('replay').classList.add('show');
